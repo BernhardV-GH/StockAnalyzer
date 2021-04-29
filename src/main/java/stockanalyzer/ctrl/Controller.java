@@ -1,27 +1,61 @@
 package stockanalyzer.ctrl;
 
-public class Controller {
+import stockanalyzer.YahooDataRetrievalException;
+import yahooApi.YahooFinance;
+import yahooApi.beans.QuoteResponse;
+import yahooApi.beans.YahooResponse;
+import yahoofinance.Stock;
+
+import java.io.IOException;
+import java.util.Arrays;
+
+public class Controller{
 		
-	public void process(String ticker) {
+	public String process(String ticker) throws YahooDataRetrievalException {
 		System.out.println("Start process");
 
-		//TODO implement Error handling 
+		return analyseData(ticker);
 
-		//TODO implement methods for
-		//1) Daten laden
-		//2) Daten Analyse
-
-	}
-	
-
-	public Object getData(String searchString) {
-
-		
-		return null;
+		// highestLast52Days(ticker); // implemented with original YahooResponse class
 	}
 
+	public String analyseData(String ticker) throws YahooDataRetrievalException{
+		Stock stock = null;
+		try {
+			stock = yahoofinance.YahooFinance.get(ticker);
+			double highest = stock.getHistory().stream()
+					.mapToDouble(quote -> quote.getClose().doubleValue())
+					.max()
+					.orElse(0);
+			double average = stock.getHistory().stream()
+					.mapToDouble(quote -> quote.getClose().doubleValue())
+					.average()
+					.orElse(0);
+			long count = stock.getHistory().stream()
+					.count();
 
-	public void closeConnection() {
-		
+			String str = "\n" + stock.getName() + "\n" +
+					"Highest Quote: " + highest + "\n" +
+					"Average Quote: " + average + "\n" +
+					"Number of records: " + count + "\n";
+			return str;
+
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new YahooDataRetrievalException("Something went wrong with data retrieval.. Oopsie..");
+		}
+	}
+
+
+	public Object getData(String searchString) throws YahooDataRetrievalException {
+		YahooFinance yahoofinance = new YahooFinance();
+		YahooResponse yahooresponse = yahoofinance.getCurrentData(Arrays.asList(searchString.split(",")));
+		return yahooresponse.getQuoteResponse();
+	}
+
+	public void highestLast52Days(String ticker) throws YahooDataRetrievalException{
+		QuoteResponse data = (QuoteResponse) getData(ticker);
+		data.getResult().stream()
+				.forEach(high -> System.out.println(high.getLongName() + ": " + high.getFiftyTwoWeekHigh()));
 	}
 }

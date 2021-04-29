@@ -4,7 +4,9 @@ package stockanalyzer.ui;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Scanner;
 
+import stockanalyzer.YahooDataRetrievalException;
 import stockanalyzer.ctrl.Controller;
 
 public class UserInterface 
@@ -13,43 +15,69 @@ public class UserInterface
 	private Controller ctrl = new Controller();
 
 	public void getDataFromCtrl1(){
-		ctrl.process("ABC");
+		try{
+			System.out.println(ctrl.process("MSFT"));
+		}
+		catch(YahooDataRetrievalException ydre){
+			ydre.printStackTrace();
+			System.out.println(ydre.getMessage());
+		}
 	}
 
 	public void getDataFromCtrl2(){
+		try{
+			System.out.println(ctrl.process("NFLX"));
+		}
+		catch(YahooDataRetrievalException ydre){
+			ydre.printStackTrace();
+			System.out.println(ydre.getMessage());
+		}
 	}
 
 	public void getDataFromCtrl3(){
-
+		try{
+			System.out.println(ctrl.process("NOK"));
+		}
+		catch(YahooDataRetrievalException ydre){
+			ydre.printStackTrace();
+			System.out.println(ydre.getMessage());
+		}
 	}
-	public void getDataFromCtrl4(){
 
-	}
-	
+
 	public void getDataForCustomInput() {
-		
+		Scanner scan = new Scanner(System.in);
+		System.out.println("Enter Stock short name: ");
+		String ticker = scan.nextLine();
+
+		try{
+			System.out.println(ctrl.process(ticker));
+		}
+		catch(YahooDataRetrievalException ydre){
+			ydre.printStackTrace();
+			System.out.println(ydre.getMessage());
+		}
 	}
 
 
 	public void start() {
-		Menu<Runnable> menu = new Menu<>("User Interfacx");
+		Menu<Runnable> menu = new Menu<>("User Interface");
 		menu.setTitel("Wählen Sie aus:");
-		menu.insert("a", "Choice 1", this::getDataFromCtrl1);
-		menu.insert("b", "Choice 2", this::getDataFromCtrl2);
-		menu.insert("c", "Choice 3", this::getDataFromCtrl3);
-		menu.insert("d", "Choice User Imput:",this::getDataForCustomInput);
-		menu.insert("z", "Choice User Imput:",this::getDataFromCtrl4);
+		menu.insert("a", "Microsoft Corporation", this::getDataFromCtrl1);
+		menu.insert("b", "Netflix, Inc.", this::getDataFromCtrl2);
+		menu.insert("c", "Nokia Corporation", this::getDataFromCtrl3);
+		menu.insert("d", "User Choice",this::getDataForCustomInput);
+
 		menu.insert("q", "Quit", null);
 		Runnable choice;
 		while ((choice = menu.exec()) != null) {
 			 choice.run();
 		}
-		ctrl.closeConnection();
 		System.out.println("Program finished");
 	}
 
 
-	protected String readLine() 
+	protected String readLine()
 	{
 		String value = "\0";
 		BufferedReader inReader = new BufferedReader(new InputStreamReader(System.in));
