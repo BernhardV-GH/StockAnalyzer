@@ -1,21 +1,19 @@
 package stockanalyzer.ctrl;
 
+import download.Downloader;
 import stockanalyzer.YahooDataRetrievalException;
 import yahooApi.YahooFinance;
 import yahooApi.beans.QuoteResponse;
 import yahooApi.beans.YahooResponse;
 import yahoofinance.Stock;
-
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 
 public class Controller{
-		
 	public String process(String ticker) throws YahooDataRetrievalException {
 		System.out.println("Start process");
-
 		return analyseData(ticker);
-
 		// highestLast52Days(ticker); // implemented with original YahooResponse class
 	}
 
@@ -57,5 +55,9 @@ public class Controller{
 		QuoteResponse data = (QuoteResponse) getData(ticker);
 		data.getResult().stream()
 				.forEach(high -> System.out.println(high.getLongName() + ": " + high.getFiftyTwoWeekHigh()));
+	}
+
+	public void downloadTickers(List<String> ticker, Downloader downloader) throws YahooDataRetrievalException {
+		downloader.process(ticker);
 	}
 }

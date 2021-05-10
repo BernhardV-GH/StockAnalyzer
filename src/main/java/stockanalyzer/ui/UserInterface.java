@@ -1,11 +1,14 @@
 package stockanalyzer.ui;
 
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
-
+import download.Downloader;
+import download.ParallelDownloader;
+import download.SequentialDownloader;
 import stockanalyzer.YahooDataRetrievalException;
 import stockanalyzer.ctrl.Controller;
 
@@ -59,6 +62,33 @@ public class UserInterface
 		}
 	}
 
+	private void getDataForDownload1() {
+		long time1, time2;
+		Downloader sequentialDownloader = new SequentialDownloader();
+		Downloader parallelDownloader = new ParallelDownloader();
+		List<String> tickers = Arrays.asList("MSFT","NFLX","NOK","GOOG","GME","AAPL","BTC-USD","DOGE-USD","ETH-USD",
+				"OMV.VI","EBS.VI","DOC.VI","SBO.VI","RBI.VI","VIG.VI","TKA.VI","VOE.VI","FACC.VI","ANDR.VI","VER.VI",
+				"WIE.VI","CAI.VI","BG.VI","POST.VI","LNZ.VI","UQA.VI","SPI.VI","ATS.VI","IIA.VI");
+
+		try{
+			time1 = System.currentTimeMillis();
+			ctrl.downloadTickers(tickers,sequentialDownloader);
+			time2 = System.currentTimeMillis();
+			System.out.printf("Sequential Download Timer: %dms\n",time2-time1);
+
+			time1 = System.currentTimeMillis();
+			ctrl.downloadTickers(tickers, parallelDownloader);
+			time2 = System.currentTimeMillis();
+			System.out.printf("Parallel Download Timer: %dms\n",time2-time1);
+		}
+		catch(YahooDataRetrievalException ydre){
+			ydre.printStackTrace();
+			System.out.println(ydre.getMessage());
+		}
+
+
+	}
+
 
 	public void start() {
 		Menu<Runnable> menu = new Menu<>("User Interface");
@@ -67,6 +97,7 @@ public class UserInterface
 		menu.insert("b", "Netflix, Inc.", this::getDataFromCtrl2);
 		menu.insert("c", "Nokia Corporation", this::getDataFromCtrl3);
 		menu.insert("d", "User Choice",this::getDataForCustomInput);
+		menu.insert("e","Download Tickerlist", this::getDataForDownload1);
 
 		menu.insert("q", "Quit", null);
 		Runnable choice;
@@ -75,6 +106,8 @@ public class UserInterface
 		}
 		System.out.println("Program finished");
 	}
+
+
 
 
 	protected String readLine()
